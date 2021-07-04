@@ -303,10 +303,21 @@ namespace Assistant.Agents
                 Engine.MainWindow.SafeAction(s => s.ShowMe());
             }
 
+            SetHotbagBySerial(location, serial, false);
+        }
+
+        /// <summary>
+        /// Set hotBag by serial
+        /// </summary>
+        /// <param name="location">Location</param>
+        /// <param name="serial">Serial of container</param>
+        /// <param name="quiet">Quiet mode (no sysmsg)</param>
+        public void SetHotbagBySerial(bool location, Serial serial, bool quiet)
+        {
             if (!location && serial > 0 && serial <= 0x7FFFFF00)
             {
-                Item bag = World.FindItem(m_Cont);
-                if (bag != null && bag.ObjPropList != null)
+                var bag = World.FindItem(m_Cont);
+                if (bag?.ObjPropList != null)
                 {
                     bag.ObjPropList.Remove(Language.Format(LocString.OrganizerHBA1, Number));
                     bag.OPLChanged();
@@ -318,13 +329,13 @@ namespace Assistant.Agents
                     m_BagBTN.Text = Language.GetString(LocString.ClearHB);
                 }
 
-                if (World.Player != null)
+                if (World.Player != null && !quiet)
                 {
                     World.Player.SendMessage(MsgLevel.Force, LocString.ContSet);
                 }
 
                 bag = World.FindItem(m_Cont);
-                if (bag != null && bag.ObjPropList != null)
+                if (bag?.ObjPropList != null)
                 {
                     bag.ObjPropList.Add(Language.Format(LocString.OrganizerHBA1, Number));
                     bag.OPLChanged();
