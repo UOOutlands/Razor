@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Assistant.Core;
 using Assistant.HotKeys;
@@ -74,6 +75,10 @@ namespace Assistant.Scripts
             Interpreter.RegisterExpressionHandler("noto", Notoriety);
             Interpreter.RegisterExpressionHandler("dead", Dead);
             Interpreter.RegisterExpressionHandler("targetexists", TargetExists);
+
+            // Gump
+            Interpreter.RegisterExpressionHandler("gumpexist", GumpExist);
+            Interpreter.RegisterExpressionHandler("ingump", InGump);
         }
 
         private static bool PopList(string command, Variable[] args, bool quiet, bool force)
@@ -655,6 +660,56 @@ namespace Assistant.Scripts
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Return true if user has gump with id or any
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <param name="args">Args - should contain gump id or any</param>
+        /// <param name="quiet">Not used</param>
+        /// <returns></returns>
+        private static bool GumpExist(string expression, Variable[] args, bool quiet)
+        {
+            if (args.Length != 1)
+                throw new RunTimeError("Usage: gumpexist (gumpId/'any')");
+
+            var gumpId = CommandHelper.IsNumberOrAny(args[0].AsString());
+
+            // If any just return if user have gump
+            if (gumpId == -1)
+                return World.Player.GumpList.Count > 0;
+
+            // If gumpId specific check for it
+            return World.Player.GumpList.ContainsKey((uint)gumpId);
+        }
+
+        /// <summary>
+        /// Look for specific text in gump
+        /// </summary>
+        /// <param name="expression">Expression</param>
+        /// <param name="args">Should contain text and optional gumpid or any</param>
+        /// <param name="quiet">Not used</param>
+        /// <returns></returns>
+        private static bool InGump(string expression, Variable[] args, bool quiet)
+        {
+            if (args.Length < 1)
+                throw new RunTimeError("Usage: ingump (text) [gumpId/'any']");
+            
+            // Get text
+            var text = args[0].AsString(false);
+
+            // If gumpId passed get it, otherwise look at any
+            var gumpId = args.Length > 1 ? CommandHelper.IsNumberOrAny(args[1].AsString(false)) : -1;
+
+            if (gumpId > 0)
+            {
+                // Look in specific gump text
+                return World.Player.GumpList.TryGetValue((uint)gumpId, out var gumpInfo) && gumpInfo.GumpContext.Any(line => line.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            //Look in all gumps text
+            return World.Player.GumpList.Any(gump => gump.Value.GumpContext.Any(line => line.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0));
         }
     }
 }

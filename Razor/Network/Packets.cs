@@ -745,6 +745,8 @@ namespace Assistant
                 Write((ushort) (gte.Text.Length * 2));
                 WriteBigUniFixed(gte.Text, gte.Text.Length);
             }
+
+            World.Player.GumpList.Remove(tid);
         }
     }
 

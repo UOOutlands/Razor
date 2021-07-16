@@ -910,7 +910,6 @@ namespace Assistant.Macros
             Client.Instance.SendToServer(new GumpResponse(World.Player.CurrentGumpS, World.Player.CurrentGumpI,
                 m_ButtonID, m_Switches, m_TextEntries));
             World.Player.HasGump = false;
-            World.Player.HasCompressedGump = false;
             return true;
         }
 
