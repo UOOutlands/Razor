@@ -92,6 +92,8 @@ namespace Assistant
             get { return m_HasTarget; }
         }
 
+        public static short CursorType => m_CurFlags;
+
         public static bool HasBeneficialTarget => m_LastBeneTarg != null;
         public static bool HasHarmfulTarget => m_LastHarmTarg != null;
 
